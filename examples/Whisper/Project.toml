@@ -1,0 +1,7 @@
+[deps]
+BytePairEncoding = "a4280ba5-8788-555a-8ca8-4a8c3d966a71"
+Lux = "b2108857-7c20-44ae-9111-449ecde12c47"
+Reactant = "3c362404-f566-11ee-1572-e11a4b42c853"
+
+[compat]
+Lux = "1"
