@@ -64,7 +64,7 @@ LuxLibTrackerExt = "Tracker"
 LuxLibcuDNNExt = ["CUDA", "cuDNN"]
 
 [compat]
-AMDGPU = "0.9.6, 1"
+AMDGPU = "0.9.6, 1, 2"
 AppleAccelerate = "0.4"
 ArrayInterface = "7.9"
 BLISBLAS = "0.1"
