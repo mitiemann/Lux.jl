@@ -128,6 +128,7 @@ export default defineConfig({
               { text: "Experimental", link: "/api/Lux/contrib" },
               { text: "InterOp", link: "/api/Lux/interop" },
               { text: "DistributedUtils", link: "/api/Lux/distributed_utils" },
+              { text: "Serialization", link: "/api/Lux/serialization" },
             ],
           },
           {
@@ -346,6 +347,10 @@ export default defineConfig({
                 text: "Exporting Lux Models to Jax",
                 link: "/manual/exporting_to_jax",
               },
+              {
+                text: "Profiling Lux Training Loops",
+                link: "/manual/profiling_training_loop",
+              }
             ],
           },
           {
@@ -407,6 +412,7 @@ export default defineConfig({
               { text: "Experimental Features", link: "/api/Lux/contrib" },
               { text: "Interoperability", link: "/api/Lux/interop" },
               { text: "DistributedUtils", link: "/api/Lux/distributed_utils" },
+              { text: "Serialization", link: "/api/Lux/serialization" },
             ],
           },
           {

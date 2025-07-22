@@ -1,12 +1,31 @@
 module MLDataDevicesReactantExt
 
 using Adapt: Adapt
-using MLDataDevices: MLDataDevices, Internal, ReactantDevice, CPUDevice
+using MLDataDevices: MLDataDevices, Internal, ReactantDevice, CPUDevice, AbstractDevice
 using Random: Random
-using Reactant: Reactant, ConcreteRArray, ConcreteRNumber, TracedRArray, TracedRNumber
+using Reactant:
+    Reactant, Profiler, ConcreteRArray, ConcreteRNumber, TracedRArray, TracedRNumber
 
 MLDataDevices.loaded(::Union{ReactantDevice,Type{<:ReactantDevice}}) = true
 MLDataDevices.functional(::Union{ReactantDevice,Type{<:ReactantDevice}}) = true
+
+# Tracing API Overloads
+function Reactant.traced_type_inner(
+    @nospecialize(T::Type{<:AbstractDevice}),
+    seen,
+    @nospecialize(mode::Reactant.TraceMode),
+    @nospecialize(track_numbers::Type),
+    @nospecialize(sharding),
+    @nospecialize(runtime)
+)
+    return T
+end
+
+function Reactant.make_tracer(
+    seen, @nospecialize(prev::AbstractDevice), @nospecialize(path), mode; kwargs...
+)
+    return prev
+end
 
 # Default RNG
 MLDataDevices.default_device_rng(::ReactantDevice) = Reactant.TracedRandom.default_rng()
@@ -47,7 +66,9 @@ Internal.get_device_type(::Union{TracedRArray,TracedRNumber}) = ReactantDevice
 Internal.unsafe_free_internal!(::Type{ReactantDevice}, x::AbstractArray) = nothing
 
 # Device Transfer
-function Adapt.adapt_storage(dev::ReactantDevice, x::AbstractArray)
+Profiler.@annotate "Device Transfer (Reactant)" function Adapt.adapt_storage(
+    dev::ReactantDevice, x::AbstractArray
+)
     kwargs = (;)
     dev.client === missing || (kwargs = (; kwargs..., client=dev.client))
     dev.device === missing || (kwargs = (; kwargs..., device=dev.device))

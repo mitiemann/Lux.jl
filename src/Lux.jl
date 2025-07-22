@@ -1,7 +1,13 @@
 module Lux
 
 using ADTypes:
-    AbstractADType, AutoEnzyme, AutoForwardDiff, AutoReverseDiff, AutoTracker, AutoZygote
+    AbstractADType,
+    AutoEnzyme,
+    AutoForwardDiff,
+    AutoMooncake,
+    AutoReverseDiff,
+    AutoTracker,
+    AutoZygote
 using Adapt: Adapt, adapt
 using ArgCheck: @argcheck
 using ArrayInterface: ArrayInterface
@@ -109,6 +115,9 @@ include("transform/simplechains.jl")
 include("distributed/backend.jl")
 include("distributed/public_api.jl")
 
+# Serialization
+include("serialization/serialization.jl")
+
 # Deprecations for v2
 include("deprecations.jl")
 
@@ -142,7 +151,7 @@ export Training
 export jacobian_vector_product, vector_jacobian_product
 export batched_jacobian
 export AutoEnzyme,
-    AutoForwardDiff, AutoReverseDiff, AutoTracker, AutoZygote, AutoForwardDiff
+    AutoForwardDiff, AutoMooncake, AutoReverseDiff, AutoTracker, AutoZygote, AutoForwardDiff
 
 export BinaryCrossEntropyLoss,
     BinaryFocalLoss,
@@ -175,6 +184,7 @@ export LuxOps
 # Unexported functions that are part of the public API
 @compat public Experimental
 @compat public set_dispatch_doctor_preferences!
+@compat public Serialization
 
 # NNlib.jl reexports
 ## Functional API for common layers. Recommended to use the LuxLib versions

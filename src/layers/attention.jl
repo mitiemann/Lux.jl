@@ -10,12 +10,15 @@ The multi-head dot-product attention layer used in Transformer architectures
 ## Arguments
 
   - `dims`: The embedding dimensions of inputs, intermediate tensors and outputs.
-            In the most general case, it is given as
-            a) `(q_in_dim, k_in_dim, v_in_dim) => (qk_dim, v_dim) => out_dim`.
-            Can take also simpler forms as
-            b) `dims::Int`;
-            c) `in_dim::Int => (qk_dim, v_dim) => out_dim`;
-            d) `in_dim::Int => qkv_dim => out_dim`.
+    In the most general case, it is given as
+
+    + a) `(q_in_dim, k_in_dim, v_in_dim) => (qk_dim, v_dim) => out_dim`.
+
+    Can take also simpler forms as
+
+    + b) `dims::Int`;
+    + c) `in_dim::Int => (qk_dim, v_dim) => out_dim`;
+    + d) `in_dim::Int => qkv_dim => out_dim`.
 
 ## Keyword Arguments
 
@@ -25,9 +28,11 @@ The multi-head dot-product attention layer used in Transformer architectures
 
 ## Forward Pass Signature(s)
 
-    (m::MultiHeadAttention)(qkv, ps, st::NamedTuple)
-    (m::MultiHeadAttention)((q, kv), ps, st::NamedTuple)
-    (m::MultiHeadAttention)((q, k, v, [mask = nothing]), ps, st::NamedTuple)
+```julia
+(m::MultiHeadAttention)(qkv, ps, st::NamedTuple)
+(m::MultiHeadAttention)((q, kv), ps, st::NamedTuple)
+(m::MultiHeadAttention)((q, k, v, [mask = nothing]), ps, st::NamedTuple)
+```
 
 ## Inputs
 
@@ -180,8 +185,8 @@ function apply_multiheadattention(mha::MultiHeadAttention, ps, st, q, k, v, mask
             q_proj=q_st,
             k_proj=k_st,
             v_proj=v_st,
-            out_proj=out_st,
             attention_dropout=dropout.st,
+            out_proj=out_st,
         ),
     )
 end
