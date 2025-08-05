@@ -9,3 +9,4 @@ function sinusoids(len, channels, max_timescale=10000)
 end
 
 # next step: figure out how to use my AMD GPU with Lux on my Linux computer
+# also, add XLA tools from Slack communication with Avik
