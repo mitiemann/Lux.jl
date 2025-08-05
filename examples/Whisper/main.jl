@@ -7,3 +7,5 @@ function sinusoids(len, channels, max_timescale=10000)
     scaled_time = range(1, len) * inv_timescales'
     return cat(sin.(scaled_time), cos.(scaled_time); dims=2)
 end
+
+# next step: figure out how to use my AMD GPU with Lux on my Linux computer
