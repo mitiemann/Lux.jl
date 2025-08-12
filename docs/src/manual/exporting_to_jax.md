@@ -26,13 +26,15 @@ model = Chain(
         Dense(84 => 10)
     )
 )
-ps, st = Lux.setup(Random.default_rng(), model) |> dev;
+ps, st = Lux.setup(Random.default_rng(), model) |> dev
+nothing # hide
 ```
 
 Generate an example input.
 
 ```@example exporting_to_stablehlo
-x = randn(Random.default_rng(), Float32, 28, 28, 1, 4) |> dev;
+x = randn(Random.default_rng(), Float32, 28, 28, 1, 4) |> dev
+nothing # hide
 ```
 
 Now instead of compiling the model, we will use `Reactant.@code_hlo` to generate the
@@ -45,9 +47,8 @@ hlo_code = @code_hlo model(x, ps, st)
 Now we just save this into an `mlir` file.
 
 ```@example exporting_to_stablehlo
-open("exported_lux_model.mlir", "w") do io
-    write(io, string(hlo_code))
-end
+write("exported_lux_model.mlir", string(hlo_code))
+nothing # hide
 ```
 
 Now we define a python script to run the model using EnzymeJAX.

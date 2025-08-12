@@ -12,9 +12,13 @@ using Lux, ADTypes, Optimisers, Printf, Random, Reactant, Statistics, CairoMakie
 # Generate 128 datapoints from the polynomial $y = x^2 - 2x$.
 function generate_data(rng::AbstractRNG)
     x = reshape(collect(range(-2.0f0, 2.0f0, 128)), (1, 128))
-    y = evalpoly.(x, ((0, -2, 1),)) .+ randn(rng, Float32, (1, 128)) .* 0.1f0
+    poly_coeffs = (0, -2, 1)
+    y = evalpoly.(x, (poly_coeffs,))
+    ## add some noise to simulate real-world conditions
+    y .+= randn(rng, Float32, (1, 128)) .* 0.1f0
     return (x, y)
 end
+nothing #hide
 
 # Initialize the random number generator and fetch the dataset.
 rng = MersenneTwister()
@@ -51,7 +55,7 @@ model = Chain(Dense(1 => 16, relu), Dense(16 => 1))
 
 # ## Optimizer
 
-# We will use Adam from Optimisers.jl
+# We will use Adam from [Optimisers.jl](https://fluxml.ai/Optimisers.jl)
 opt = Adam(0.03f0)
 
 # ## Loss Function
@@ -77,6 +81,7 @@ tstate = Training.TrainState(model, ps, st, opt)
 # Now we will use Enzyme (Reactant) for our AD requirements.
 
 vjp_rule = AutoEnzyme()
+nothing #hide
 
 # Finally the training loop.
 

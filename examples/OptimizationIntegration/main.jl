@@ -30,6 +30,7 @@ using Lux,
 
 const gdev = gpu_device()
 const cdev = cpu_device()
+nothing #hide
 
 # ## Generate some training data
 
@@ -78,6 +79,7 @@ Base.length(t::TimeWrapper) = length(t.t)
 Base.getindex(t::TimeWrapper, i) = TimeWrapper(t.t[i])
 
 dataloader = gdev(DataLoader((ode_data, TimeWrapper(t)); batchsize=8))
+nothing #hide
 
 # ## Training the model
 
@@ -103,11 +105,13 @@ function train_model(dataloader)
     st = gdev(st)
 
     function callback(state, l)
-        state.iter % 25 == 1 && @printf "Iteration: %5d, Loss: %.6e\n" state.iter l
+        if state.iter == 1 || state.iter % 25 == 0
+            @printf "Iteration: %5d, Loss: %.6e\n" state.iter l
+        end
         return l < 1.0e-8 ## Terminate if loss is small
     end
 
-    smodel = StatefulLuxLayer{true}(model, nothing, st)
+    smodel = StatefulLuxLayer(model, nothing, st)
 
     function loss_adjoint(θ, (u_batch, t_batch))
         t_batch = t_batch.t
@@ -138,7 +142,7 @@ function train_model(dataloader)
     opt_prob = remake(opt_prob; u0=res_lbfgs.u)
     res = solve(opt_prob, Optimisers.Adam(0.005); maxiters=500, callback)
 
-    return StatefulLuxLayer{true}(model, res.u, smodel.st)
+    return StatefulLuxLayer(model, res.u, smodel.st)
 end
 
 trained_model = train_model(dataloader)

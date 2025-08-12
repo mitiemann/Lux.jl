@@ -7,6 +7,7 @@ using Lux, Reactant, Random, Optimisers, Statistics, Enzyme, Printf, CairoMakie,
 
 const xdev = reactant_device(; force=true)
 const cdev = cpu_device()
+nothing #hide
 
 # ## Generate synthetic data
 
@@ -307,7 +308,7 @@ function train(
         )
     end
 
-    return StatefulLuxLayer{true}(
+    return StatefulLuxLayer(
         model, train_state.parameters |> cdev, train_state.states |> cdev
     )
 end

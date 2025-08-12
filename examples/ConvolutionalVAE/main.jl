@@ -67,12 +67,13 @@ function cvae_encoder(
         ## Generate a tensor of random values from a normal distribution
         ϵ = randn_like(Lux.replicate(rng), σ)
 
-        ## Reparameterization trick to brackpropagate through sampling
+        ## Reparameterization trick to backpropagate through sampling
         z = ϵ .* σ .+ μ
 
         @return z, μ, logσ²
     end
 end
+nothing #hide
 
 # Similarly we define the decoder.
 
@@ -137,6 +138,7 @@ function decode(cvae::CVAE, z, ps, st)
     x_rec, st_dec = cvae.decoder(z, ps.decoder, st.decoder)
     return x_rec, (; decoder=st_dec, st.encoder)
 end
+nothing #hide
 
 # ## Loading MNIST
 
@@ -164,6 +166,7 @@ function loadmnist(batchsize, image_size::Dims{2})
 
     return trainloader
 end
+nothing #hide
 
 # ## Helper Functions
 

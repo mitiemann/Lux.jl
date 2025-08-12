@@ -31,9 +31,8 @@ we can save the `mlir` file.
 ```@example visualize_lux_models
 hlo = @code_hlo model(x, ps, Lux.testmode(st))
 
-open("exported_lux_model.mlir", "w") do io
-    write(io, string(hlo))
-end
+write("exported_lux_model.mlir", string(hlo))
+nothing # hide
 ```
 
 ![model-explorer-screenshot](../public/model_explorer_graph_forward_pass.png)
@@ -48,9 +47,8 @@ end
 
 hlo = @code_hlo ∇sumabs2_enzyme(model, x, ps, st)
 
-open("exported_lux_model_gradients.mlir", "w") do io
-    write(io, string(hlo))
-end
+write("exported_lux_model_gradients.mlir", string(hlo))
+nothing # hide
 ```
 
 This is going to be hard to read, but you get the idea.

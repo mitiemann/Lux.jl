@@ -9,7 +9,7 @@
 
 # ## Package Imports
 
-# Note: If you wish to use AutoZygote() for automatic differentiation,
+# Note: If you wish to use `AutoZygote()` for automatic differentiation,
 # add Zygote to your project dependencies and include `using Zygote`.
 
 using ADTypes, Lux, JLD2, MLUtils, Optimisers, Printf, Reactant, Random
@@ -21,7 +21,7 @@ using ADTypes, Lux, JLD2, MLUtils, Optimisers, Printf, Reactant, Random
 # us sequences of size 2 × seq_len × batch_size and we need to predict a binary value
 # whether the sequence is clockwise or anticlockwise.
 
-function get_dataloaders(; dataset_size=1000, sequence_length=50)
+function create_dataset(; dataset_size=1000, sequence_length=50)
     ## Create the spirals
     data = [MLUtils.Datasets.make_spiral(sequence_length) for _ in 1:dataset_size]
     ## Get the labels
@@ -35,6 +35,11 @@ function get_dataloaders(; dataset_size=1000, sequence_length=50)
         d in data[((dataset_size ÷ 2) + 1):end]
     ]
     x_data = Float32.(cat(clockwise_spirals..., anticlockwise_spirals...; dims=3))
+    return x_data, labels
+end
+
+function get_dataloaders(; dataset_size=1000, sequence_length=50)
+    x_data, labels = create_dataset(; dataset_size, sequence_length)
     ## Split the dataset
     (x_train, y_train), (x_val, y_val) = splitobs((x_data, labels); at=0.8, shuffle=true)
     ## Create DataLoaders
@@ -47,13 +52,14 @@ function get_dataloaders(; dataset_size=1000, sequence_length=50)
         DataLoader(collect.((x_val, y_val)); batchsize=128, shuffle=false, partial=false),
     )
 end
+nothing #hide
 
 # ## Creating a Classifier
 
 # We will be extending the `Lux.AbstractLuxContainerLayer` type for our custom model
-# since it will contain a lstm block and a classifier head.
+# since it will contain a LSTM block and a classifier head.
 
-# We pass the fieldnames `lstm_cell` and `classifier` to the type to ensure that the
+# We pass the field names `lstm_cell` and `classifier` to the type to ensure that the
 # parameters and states are automatically populated and we don't have to define
 # `Lux.initialparameters` and `Lux.initialstates`.
 
@@ -73,6 +79,7 @@ function SpiralClassifier(in_dims, hidden_dims, out_dims)
         LSTMCell(in_dims => hidden_dims), Dense(hidden_dims => out_dims, sigmoid)
     )
 end
+nothing #hide
 
 # We can use default Lux blocks -- `Recurrence(LSTMCell(in_dims => hidden_dims)` -- instead
 # of defining the following. But let's still do it for the sake of it.
@@ -119,10 +126,11 @@ function SpiralClassifierCompact(in_dims, hidden_dims, out_dims)
         @return vec(classifier(y))
     end
 end
+nothing #hide
 
 # ## Defining Accuracy, Loss and Optimiser
 
-# Now let's define the binarycrossentropy loss. Typically it is recommended to use
+# Now let's define the binary cross-entropy loss. Typically it is recommended to use
 # `logitbinarycrossentropy` since it is more numerically stable, but for the sake of
 # simplicity we will use `binarycrossentropy`.
 const lossfn = BinaryCrossEntropyLoss()
@@ -135,6 +143,7 @@ end
 
 matches(y_pred, y_true) = sum((y_pred .> 0.5f0) .== y_true)
 accuracy(y_pred, y_true) = matches(y_pred, y_true) / length(y_pred)
+nothing #hide
 
 # ## Training the Model
 
@@ -173,7 +182,7 @@ function main(model_type)
             total_loss += loss * length(y)
             total_samples += length(y)
         end
-        @printf "Epoch [%3d]: Loss %4.5f\n" epoch (total_loss / total_samples)
+        @printf("Epoch [%3d]: Loss %4.5f\n", epoch, total_loss / total_samples)
 
         ## Validate the model
         total_acc = 0.0f0
@@ -189,7 +198,9 @@ function main(model_type)
             total_samples += length(y)
         end
 
-        @printf "Validation:\tLoss %4.5f\tAccuracy %4.5f\n" (total_loss / total_samples) (
+        @printf(
+            "Validation:\tLoss %4.5f\tAccuracy %4.5f\n",
+            total_loss / total_samples,
             total_acc / total_samples
         )
     end

@@ -5,7 +5,7 @@
 # However, we will be using our custom loss function and use nested AD capabilities of
 # Lux.jl.
 
-# This is a demonstration of Lux.jl. For serious usecases of PINNs, please refer to
+# This is a demonstration of Lux.jl. For serious use cases of PINNs, please refer to
 # the package: [NeuralPDE.jl](https://github.com/SciML/NeuralPDE.jl).
 
 # ## Package Imports
@@ -23,6 +23,7 @@ using Lux,
 
 const xdev = reactant_device(; force=true)
 const cdev = cpu_device()
+nothing #hide
 
 # ## Problem Definition
 
@@ -32,7 +33,7 @@ const cdev = cpu_device()
 
 # ## Define the Neural Networks
 
-# All the networks take 3 input variables and output a scalar value. Here, we will define a
+# All the networks take 3 input variables and output a scalar value. Here, we will define
 # a wrapper over the 3 networks, so that we can train them using
 # [`Training.TrainState`](@ref).
 
@@ -50,11 +51,12 @@ function PINN(; hidden_dims::Int=32)
         ),
     )
 end
+nothing #hide
 
 # ## Define the Loss Functions
 
-# We will define a custom loss function to compute the loss using 2nd order AD. We
-# will use the following loss function
+# We will define a custom loss function to compute the loss using 2nd order AD.
+# For that, first we'll need to define the derivatives of our model:
 
 function ∂u_∂t(model::StatefulLuxLayer, xyt::AbstractArray)
     return Enzyme.gradient(Enzyme.Reverse, sum ∘ model, xyt)[1][3, :]
@@ -75,12 +77,16 @@ end
 function ∂²u_∂y²(model::StatefulLuxLayer, xyt::AbstractArray)
     return Enzyme.gradient(Enzyme.Reverse, sum ∘ ∂u_∂y, Enzyme.Const(model), xyt)[2][2, :]
 end
+nothing #hide
+
+# We will use the following loss function
 
 function physics_informed_loss_function(model::StatefulLuxLayer, xyt::AbstractArray)
     return mean(abs2, ∂u_∂t(model, xyt) .- ∂²u_∂x²(model, xyt) .- ∂²u_∂y²(model, xyt))
 end
+nothing #hide
 
-# Additionally, we need to compute the loss wrt the boundary conditions.
+# Additionally, we need to compute the loss with respect to the boundary conditions.
 
 function mse_loss_function(
     model::StatefulLuxLayer, target::AbstractArray, xyt::AbstractArray
@@ -89,13 +95,14 @@ function mse_loss_function(
 end
 
 function loss_function(model, ps, st, (xyt, target_data, xyt_bc, target_bc))
-    smodel = StatefulLuxLayer{true}(model, ps, st)
+    smodel = StatefulLuxLayer(model, ps, st)
     physics_loss = physics_informed_loss_function(smodel, xyt)
     data_loss = mse_loss_function(smodel, target_data, xyt)
     bc_loss = mse_loss_function(smodel, target_bc, xyt_bc)
     loss = physics_loss + data_loss + bc_loss
     return loss, smodel.st, (; physics_loss, data_loss, bc_loss)
 end
+nothing #hide
 
 # ## Generate the Data
 
@@ -106,6 +113,8 @@ end
 
 analytical_solution(x, y, t) = @. exp(x + y) * cos(x + y + 4t)
 analytical_solution(xyt) = analytical_solution(xyt[1, :], xyt[2, :], xyt[3, :])
+nothing #hide
+#-
 
 begin
     grid_len = 16
@@ -197,18 +206,28 @@ function train_model(
         isnan(loss) && throw(ArgumentError("NaN Loss Detected"))
 
         if iter % 1000 == 1 || iter == maxiters
-            @printf "Iteration: [%6d/%6d] \t Loss: %.9f (%.9f) \t Physics Loss: %.9f \
-                     (%.9f) \t Data Loss: %.9f (%.9f) \t BC \
-                     Loss: %.9f (%.9f)\n" iter maxiters loss mean_loss stats.physics_loss mean_physics_loss stats.data_loss mean_data_loss stats.bc_loss mean_bc_loss
+            @printf(
+                "Iteration: [%6d/%6d] \t Loss: %.9f (%.9f) \t Physics Loss: %.9f \
+                 (%.9f) \t Data Loss: %.9f (%.9f) \t BC \
+                 Loss: %.9f (%.9f)\n",
+                iter,
+                maxiters,
+                loss,
+                mean_loss,
+                stats.physics_loss,
+                mean_physics_loss,
+                stats.data_loss,
+                mean_data_loss,
+                stats.bc_loss,
+                mean_bc_loss
+            )
         end
 
         iter += 1
         iter ≥ maxiters && break
     end
 
-    return StatefulLuxLayer{true}(
-        pinn, cdev(train_state.parameters), cdev(train_state.states)
-    )
+    return StatefulLuxLayer(pinn, cdev(train_state.parameters), cdev(train_state.states))
 end
 
 trained_model = train_model(xyt, target_data, xyt_bc, target_bc)

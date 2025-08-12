@@ -120,7 +120,7 @@ W * x
 
 # ## (Im)mutability
 
-# Lux as you might have read is Immutable by convention
+# Lux as you might have read is "Immutable by convention,"
 # which means that the core library is built without any form of mutation and all functions
 # are pure. However, we don't enforce it in any form. We do **strongly recommend** that
 # users extending this framework for their respective applications don't mutate their
@@ -208,7 +208,7 @@ println("Computed Gradient via Forward Mode AD (ForwardDiff): ", ForwardDiff.gra
 # ### Jacobian-Vector Product
 
 # I will defer the discussion on forward-mode AD to
-# [https://book.sciml.ai/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/](https://book.sciml.ai/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/).
+# <https://book.sciml.ai/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/>.
 # Here let us just look at a mini example on how to use it.
 
 f(x) = x .* x ./ 2
@@ -222,7 +222,7 @@ v = ones(Float32, 5)
 #     here come with additional goodies like
 #     [fast second-order derivatives](@ref nested_autodiff).
 
-# Compute the jvp. `AutoForwardDiff` specifies that we want to use `ForwardDiff.jl` for the
+# Compute the JVP. `AutoForwardDiff` specifies that we want to use `ForwardDiff.jl` for the
 # Jacobian-Vector Product
 
 jvp = jacobian_vector_product(f, AutoForwardDiff(), x, v)
@@ -230,7 +230,7 @@ println("JVP: ", jvp)
 
 # ### Vector-Jacobian Product
 
-# Using the same function and inputs, let us compute the VJP.
+# Using the same function and inputs, let us compute the Vector-Jacobian Product (VJP).
 
 vjp = vector_jacobian_product(f, AutoZygote(), x, v)
 println("VJP: ", vjp)
@@ -239,7 +239,7 @@ println("VJP: ", vjp)
 
 # Finally, now let us consider a linear regression problem. From a set of data-points
 # $\{ (x_i, y_i), i \in \{ 1, \dots, k \}, x_i \in \mathbb{R}^n, y_i \in \mathbb{R}^m \}$,
-# we try to find a set of parameters $W$ and $b$, s.t. $f_{W,b}(x) = Wx + b$, which
+# we try to find a set of parameters $W$ and $b$, such that $f_{W,b}(x) = Wx + b$, which
 # minimizes the mean squared error:
 
 # $$L(W, b) \longrightarrow \sum_{i = 1}^{k} \frac{1}{2} \| y_i - f_{W,b}(x_i) \|_2^2$$
@@ -259,10 +259,14 @@ ps = ComponentArray(ps)
 n_samples = 20
 x_dim = 10
 y_dim = 5
+nothing #hide
 
-# Generate random ground truth W and b.
+# We're going to generate a random set of weights `W` and biases `b` that will act as our
+# true model (also known as the ground truth). The neural network we'll train will be to try
+# and approximate `W` and `b` from example data.
 W = randn(rng, Float32, y_dim, x_dim)
 b = randn(rng, Float32, y_dim)
+nothing #hide
 
 # Generate samples with additional noise.
 x_samples = randn(rng, Float32, x_dim, n_samples)
@@ -287,7 +291,7 @@ function train_model!(model, ps, st, opt, nepochs::Int)
         grads, loss, _, tstate = Training.single_train_step!(
             AutoZygote(), lossfn, (x_samples, y_samples), tstate
         )
-        if i % 1000 == 1 || i == nepochs
+        if i == 1 || i % 1000 == 0 || i == nepochs
             @printf "Loss Value after %6d iterations: %.8f\n" i loss
         end
     end

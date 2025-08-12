@@ -25,7 +25,7 @@ using CairoMakie
 #     This section can be skipped. It defines functions to simulate the model, however,
 #     from a scientific machine learning perspective, isn't super relevant.
 
-# We need a very crude 2-body path. Assume the 1-body motion is a newtonian 2-body position
+# We need a very crude 2-body path. Assume the 1-body motion is a Newtonian 2-body position
 # vector $r = r_1 - r_2$ and use Newtonian formulas to get $r_1$, $r_2$ (e.g. Theoretical
 # Mechanics of Particles and Continua 4.3)
 
@@ -35,6 +35,7 @@ function one2two(path, m₁, m₂)
     r₂ = -m₁ / M .* path
     return r₁, r₂
 end
+nothing #hide
 
 # Next we define a function to perform the change of variables:
 # $$(\chi(t),\phi(t)) \mapsto (x(t),y(t))$$
@@ -62,6 +63,7 @@ end
     orbit = vcat(x', y')
     return orbit
 end
+nothing #hide
 
 # This function uses second-order one-sided difference stencils at the endpoints;
 # see https://doi.org/10.1090/S0025-5718-1988-0935077-0
@@ -72,6 +74,7 @@ function d_dt(v::AbstractVector, dt)
     c = 3 / 2 * v[end] - 2 * v[end - 1] + 1 / 2 * v[end - 2]
     return [a; b; c] / dt
 end
+nothing #hide
 
 # This function uses second-order one-sided difference stencils at the endpoints;
 # see https://doi.org/10.1090/S0025-5718-1988-0935077-0
@@ -82,6 +85,7 @@ function d2_dt2(v::AbstractVector, dt)
     c = 2 * v[end] - 5 * v[end - 1] + 4 * v[end - 2] - v[end - 3]
     return [a; b; c] / (dt^2)
 end
+nothing #hide
 
 # Now we define a function to compute the trace-free moment tensor from the orbit
 
@@ -138,7 +142,7 @@ function h_22_quadrupole_two_body(dt, orbit1, mass1, orbit2, mass2)
 end
 
 function h_22_strain_two_body(dt::T, orbit1, mass1, orbit2, mass2) where {T}
-    ## compute (2,2) mode strain from orbits of BH 1 of mass1 and BH2 of mass 2
+    ## compute (2,2) mode strain from orbits of BH1 of mass1 and BH2 of mass 2
 
     @assert abs(mass1 + mass2 - 1.0) < 1.0e-12 "Masses do not sum to unity"
 
@@ -167,11 +171,12 @@ function compute_waveform(dt::T, soln, mass_ratio, model_params=nothing) where {
     end
     return waveform
 end
+nothing #hide
 
 # ## Simulating the True Model
 
 # `RelativisticOrbitModel` defines system of odes which describes motion of point like
-# particle in schwarzschild background, uses
+# particle in Schwarzschild background, uses
 
 # $$u[1] = \chi$$
 # $$u[2] = \phi$$
@@ -217,13 +222,13 @@ begin
     fig
 end
 
-# ## Defiing a Neural Network Model
+# ## Defining a Neural Network Model
 
 # Next, we define the neural network model that takes 1 input (time) and has two outputs.
 # We'll make a function `ODE_model` that takes the initial conditions, neural network
 # parameters and a time as inputs and returns the derivatives.
 
-# It is typically never recommended to use globals but incase you do use them, make sure
+# It is typically never recommended to use globals but in case you do use them, make sure
 # to mark them as `const`.
 
 # We will deviate from the standard Neural Network initialization and use
@@ -236,12 +241,12 @@ const nn = Chain(
 )
 ps, st = Lux.setup(Random.default_rng(), nn)
 
-# Similar to most DL frameworks, Lux defaults to using `Float32`, however, in this case we
-# need Float64
+# Similar to most deep learning frameworks, Lux defaults to using `Float32`.
+# However, in this case we need Float64
 
 const params = ComponentArray(f64(ps))
 
-const nn_model = StatefulLuxLayer{true}(nn, nothing, st)
+const nn_model = StatefulLuxLayer(nn, nothing, st)
 
 # Now we define a system of odes which describes motion of point like particle with
 # Newtonian physics, uses
@@ -267,6 +272,7 @@ function ODE_model(u, nn_params, t)
 
     return [χ̇, ϕ̇]
 end
+nothing #hide
 
 # Let us now simulate the neural network model and plot the results. We'll use the untrained
 # neural network parameters to simulate the model.
@@ -310,6 +316,7 @@ function loss(θ)
     pred_waveform = first(compute_waveform(dt_data, pred, mass_ratio, ode_model_params))
     return mseloss(pred_waveform, waveform)
 end
+nothing #hide
 
 # Warmup the loss function
 loss(params)
@@ -322,6 +329,7 @@ function callback(θ, l)
     @printf "Training \t Iteration: %5d \t Loss: %.10f\n" θ.iter l
     return false
 end
+nothing #hide
 
 # ## Training the Neural Network
 
