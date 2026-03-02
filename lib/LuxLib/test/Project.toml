@@ -32,8 +32,14 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
+[sources.LuxTestUtils]
+path = "../../LuxTestUtils"
+
+[sources.MLDataDevices]
+path = "../../MLDataDevices"
+
 [compat]
-AppleAccelerate = "0.4"
+AppleAccelerate = "0.4, 0.6"
 Aqua = "0.8.7"
 BLISBLAS = "0.1"
 BenchmarkTools = "1.5"
@@ -65,7 +71,3 @@ Statistics = "1.10"
 Test = "1.10"
 Tracker = "0.2.36"
 Zygote = "0.6.70, 0.7"
-
-[sources]
-LuxTestUtils = { path = "../../LuxTestUtils" }
-MLDataDevices = { path = "../../MLDataDevices" }
