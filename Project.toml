@@ -1,7 +1,7 @@
 name = "Lux"
 uuid = "b2108857-7c20-44ae-9111-449ecde12c47"
-authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
 version = "1.17.0"
+authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -54,11 +54,17 @@ SimpleChains = "de6bee2f-e2f4-4ec7-b6ed-219cc6f6e9e5"
 Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
-[sources]
-LuxCore = {path = "lib/LuxCore"}
-LuxLib = {path = "lib/LuxLib"}
-MLDataDevices = {path = "lib/MLDataDevices"}
-WeightInitializers = {path = "lib/WeightInitializers"}
+[sources.LuxCore]
+path = "lib/LuxCore"
+
+[sources.LuxLib]
+path = "lib/LuxLib"
+
+[sources.MLDataDevices]
+path = "lib/MLDataDevices"
+
+[sources.WeightInitializers]
+path = "lib/WeightInitializers"
 
 [extensions]
 LuxComponentArraysExt = "ComponentArrays"
@@ -80,7 +86,7 @@ ADTypes = "1.15"
 Adapt = "4.1"
 ArgCheck = "2.3"
 ArrayInterface = "7.17.1"
-CUDA = "5.3.2"
+CUDA = "5.3.2, 6"
 ChainRulesCore = "1.25"
 Compat = "4.16"
 ComponentArrays = "0.15.28"
